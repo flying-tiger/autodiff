@@ -507,19 +507,19 @@ struct Dual
 
     explicit operator T() const { return this->val; }
 
-    template<typename U, enableif<isConvertible<U, T> && !isExpr<U>>...>
+    template<typename U, enableif<isConvertible<U, T> && !isExpr<U>>* = nullptr>
     Dual(U&& val)
     : val(std::forward<U>(val)), grad(0)
     {
     }
 
-    template<typename U, enableif<isExpr<U> && !isDual<U>>...>
+    template<typename U, enableif<isExpr<U> && !isDual<U>>* = nullptr>
     Dual(U&& other)
     {
         assign(*this, std::forward<U>(other));
     }
 
-    template<typename U, enableif<isExpr<U> && !isDual<U>>...>
+    template<typename U, enableif<isExpr<U> && !isDual<U>>* = nullptr>
     Dual& operator=(U&& other)
     {
         Dual tmp;
@@ -528,7 +528,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, enableif<isArithmetic<U> || isExpr<U>>* = nullptr>
     Dual& operator+=(U&& other)
     {
         Dual tmp;
@@ -537,7 +537,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, enableif<isArithmetic<U> || isExpr<U>>* = nullptr>
     Dual& operator-=(U&& other)
     {
         Dual tmp;
@@ -546,7 +546,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, enableif<isArithmetic<U> || isExpr<U>>* = nullptr>
     Dual& operator*=(U&& other)
     {
         Dual tmp;
@@ -555,7 +555,7 @@ struct Dual
         return *this;
     }
 
-    template<typename U, enableif<isArithmetic<U> || isExpr<U>>...>
+    template<typename U, enableif<isArithmetic<U> || isExpr<U>>* = nullptr>
     Dual& operator/=(U&& other)
     {
         Dual tmp;
@@ -812,7 +812,7 @@ constexpr auto One()
 //-----------------------------------------------------------------------------
 // POSITIVE OPERATOR: +x
 //-----------------------------------------------------------------------------
-template<typename R, enableif<isExpr<R>>...>
+template<typename R, enableif<isExpr<R>>* = nullptr>
 constexpr auto operator+(R&& expr)
 {
     return std::forward<R>(expr); // expression optimization: +(expr) => expr
@@ -824,7 +824,7 @@ constexpr auto operator+(R&& expr)
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...>
+template<typename R, enableif<isExpr<R>>* = nullptr>
 constexpr auto operator-(R&& expr)
 {
     // NEGATIVE EXPRESSION CASE: -(-x) => x when expr is (-x)
@@ -843,7 +843,7 @@ constexpr auto operator-(R&& expr)
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr>
 constexpr auto operator+(L&& l, R&& r)
 {
     // ADDITION EXPRESSION CASE: (-x) + (-y) => -(x + y)
@@ -862,7 +862,7 @@ constexpr auto operator+(L&& l, R&& r)
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr>
 constexpr auto operator*(L&& l, R&& r)
 {
     // MULTIPLICATION EXPRESSION CASE: (-expr) * (-expr) => expr * expr
@@ -896,7 +896,7 @@ constexpr auto operator*(L&& l, R&& r)
 //-----------------------------------------------------------------------------
 // SUBTRACTION OPERATOR: expr - expr, scalar - expr, expr - scalar
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr>
 constexpr auto operator-(L&& l, R&& r)
 {
     return std::forward<L>(l) + ( -std::forward<R>(r) );
@@ -911,7 +911,7 @@ constexpr auto operator-(L&& l, R&& r)
 //-----------------------------------------------------------------------------
 // DIVISION OPERATOR: expr / expr
 //-----------------------------------------------------------------------------
-template<typename L, typename R, enableif<isOperable<L, R>>...>
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr>
 constexpr auto operator/(L&& l, R&& r)
 {
     if constexpr (isArithmetic<R>)
@@ -925,13 +925,13 @@ constexpr auto operator/(L&& l, R&& r)
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...> constexpr auto sin(R&& r) -> SinExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto cos(R&& r) -> CosExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto tan(R&& r) -> TanExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
-template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto atan2(L&& l, R&& r) -> ArcTan2Expr<L, R> { return { l, r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto sin(R&& r) -> SinExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto cos(R&& r) -> CosExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto tan(R&& r) -> TanExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto asin(R&& r) -> ArcSinExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto acos(R&& r) -> ArcCosExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto atan(R&& r) -> ArcTanExpr<R> { return { r }; }
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr> constexpr auto atan2(L&& l, R&& r) -> ArcTan2Expr<L, R> { return { l, r }; }
 
 //=====================================================================================================================
 //
@@ -939,9 +939,9 @@ template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto a
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...> constexpr auto sinh(R&& r) -> SinhExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto cosh(R&& r) -> CoshExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto sinh(R&& r) -> SinhExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto cosh(R&& r) -> CoshExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto tanh(R&& r) -> TanhExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -949,9 +949,9 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto tanh(R&& r) -> TanhE
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...> constexpr auto exp(R&& r) -> ExpExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto log(R&& r) -> LogExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto log10(R&& r) -> Log10Expr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto exp(R&& r) -> ExpExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto log(R&& r) -> LogExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto log10(R&& r) -> Log10Expr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -959,8 +959,8 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto log10(R&& r) -> Log1
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isOperable<L, R>>...> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { l, r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { r }; }
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr> constexpr auto pow(L&& l, R&& r) -> PowExpr<L, R> { return { l, r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto sqrt(R&& r) -> SqrtExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -968,12 +968,12 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto sqrt(R&& r) -> SqrtE
 //
 //=====================================================================================================================
 
-template<typename R, enableif<isExpr<R>>...> constexpr auto abs(R&& r) -> AbsExpr<R> { return { r }; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
-template<typename R, enableif<isExpr<R>>...> constexpr auto conj(R&& r) { return std::forward<R>(r); }
-template<typename R, enableif<isExpr<R>>...> constexpr auto real(R&& r) { return std::forward<R>(r); }
-template<typename R, enableif<isExpr<R>>...> constexpr auto imag(R&& r) { return 0.0; }
-template<typename R, enableif<isExpr<R>>...> constexpr auto erf(R&& r) -> ErfExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto abs(R&& r) -> AbsExpr<R> { return { r }; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto abs2(R&& r) { return std::forward<R>(r) * std::forward<R>(r); }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto conj(R&& r) { return std::forward<R>(r); }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto real(R&& r) { return std::forward<R>(r); }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto imag(R&& r) { return 0.0; }
+template<typename R, enableif<isExpr<R>>* = nullptr> constexpr auto erf(R&& r) -> ErfExpr<R> { return { r }; }
 
 //=====================================================================================================================
 //
@@ -981,12 +981,12 @@ template<typename R, enableif<isExpr<R>>...> constexpr auto erf(R&& r) -> ErfExp
 //
 //=====================================================================================================================
 
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator==(L&& l, R&& r) { return val(l) == val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator!=(L&& l, R&& r) { return val(l) != val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator<=(L&& l, R&& r) { return val(l) <= val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator>=(L&& l, R&& r) { return val(l) >= val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator<(L&& l, R&& r) { return val(l) < val(r); }
-template<typename L, typename R, enableif<isOperable<L, R>>...> bool operator>(L&& l, R&& r) { return val(l) > val(r); }
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr> bool operator==(L&& l, R&& r) { return val(l) == val(r); }
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr> bool operator!=(L&& l, R&& r) { return val(l) != val(r); }
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr> bool operator<=(L&& l, R&& r) { return val(l) <= val(r); }
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr> bool operator>=(L&& l, R&& r) { return val(l) >= val(r); }
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr> bool operator<(L&& l, R&& r) { return val(l) < val(r); }
+template<typename L, typename R, enableif<isOperable<L, R>>* = nullptr> bool operator>(L&& l, R&& r) { return val(l) > val(r); }
 
 //=====================================================================================================================
 //
